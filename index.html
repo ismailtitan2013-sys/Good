@@ -185,7 +185,7 @@
       </div>
       <div class="header-right">
         <button class="top-action-btn" id="theme-toggle-btn" title="Тема"><i class="fas fa-moon"></i></button>
-        <button class="top-action-btn" id="call-btn" title="Звонок"><i class="fas fa-phone-alt"></i></button>
+        <button class="top-action-btn" id="call-btn" title="Аудиозвонок"><i class="fas fa-phone-alt"></i></button>
         <button class="top-action-btn" id="video-call-btn" title="Видеозвонок"><i class="fas fa-video"></i></button>
         <button id="logout-btn">Выйти</button>
       </div>
@@ -573,14 +573,16 @@
 
     closeSidebar.addEventListener('click', () => { sidebar.classList.remove('open'); });
 
-    // СТАБИЛЬНЫЕ ЗВОНКИ ЧЕРЕЗ JITSI
-    function openSecureCall() {
+    // РАЗДЕЛЬНЫЕ ЗВОНКИ ЧЕРЕЗ JITSI (АУДИО И ВИДЕО)
+    function startJitsiCall(audioOnly) {
       const roomName = "GoodChatRoom_" + currentChatRoom;
-      window.open(`https://meet.jit.si/${roomName}`, '_blank');
+      // Параметры конфигурации Jitsi: отключаем видео сразу, если это аудиозвонок
+      let jitsiUrl = `https://meet.jit.si/${roomName}#config.startWithVideoMuted=${audioOnly}&config.startWithAudioMuted=false`;
+      window.open(jitsiUrl, '_blank');
     }
 
-    callBtn.addEventListener('click', openSecureCall);
-    videoCallBtn.addEventListener('click', openSecureCall);
+    callBtn.addEventListener('click', () => startJitsiCall(true));      // Аудиозвонок (видео выключено)
+    videoCallBtn.addEventListener('click', () => startJitsiCall(false)); // Видеозвонок (видео включено)
 
     let unsubscribeMessages = null;
 
