@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Good</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- Подключаем официальный скрипт Jitsi для звонков прямо внутри сайта -->
-  <script src='https://meet.jit.si/external_api.js'></script>
   <style>
     :root {
       --bg-color: #f0f2f5;
@@ -65,10 +63,10 @@
     #login-btn { background: var(--accent-color); color: white; }
     #register-btn { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); }
 
-    /* ВСТРОЕННОЕ ОКНО ЗВОНКА JITSI */
-    #jitsi-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 500; display: none; flex-direction: column; }
-    #jitsi-container { flex: 1; width: 100%; height: 100%; }
-    .close-jitsi-btn { position: absolute; top: 15px; right: 20px; background: #e53935; color: #fff; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; z-index: 501; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+    /* НАТИВНАЯ ПАНЕЛЬ АУДИОЗВОНКА */
+    #native-call-banner { display: none; position: absolute; top: 0; left: 0; width: 100%; background: linear-gradient(90deg, #2481cc, #2cb67d); color: white; padding: 10px 20px; z-index: 500; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: fadeIn 0.3s ease; }
+    .call-info { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+    .call-actions button { background: #e53935; color: white; border: none; padding: 6px 14px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
 
     /* САЙДБАР */
     #sidebar { position: absolute; left: 0; top: 0; width: 300px; height: 100%; background: var(--sidebar-bg); z-index: 50; border-right: 1px solid var(--input-border); display: flex; flex-direction: column; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 5px 0 25px rgba(0,0,0,0.15); }
@@ -83,7 +81,6 @@
     .profile-info h4 { font-size: 0.95rem; color: var(--text-color); font-weight: 600; }
     .profile-info span { font-size: 0.75rem; color: var(--text-secondary); }
     
-    /* ИЗМЕНЕНИЕ ИМЕНИ (ЮЗЕР НЕ ТРОГАЕТСЯ) */
     .profile-edit-box { display: flex; gap: 6px; width: 100%; margin-top: 4px; }
     .profile-edit-box input { flex: 1; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); font-size: 0.85rem; outline: none; }
     .profile-edit-box button { background: var(--accent-color); color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: 600; }
@@ -112,7 +109,6 @@
     .message.my { background: var(--message-my); color: var(--message-my-text); align-self: flex-end; border-bottom-right-radius: 2px; }
     .message.other { background: var(--message-other); color: var(--message-other-text); align-self: flex-start; border-bottom-left-radius: 2px; }
     
-    /* ЭКСКЛЮЗИВНОЕ VIP СООБЩЕНИЕ */
     .message.vip-msg { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000; border: 2px solid #fff; box-shadow: 0 0 15px rgba(255,215,0,0.6); font-weight: bold; }
     .message.vip-msg .author { color: #000; }
 
@@ -155,11 +151,17 @@
 <body data-theme="dark">
   <canvas id="bg-canvas"></canvas>
 
-  <!-- ВСТРОЕННОЕ ОКНО ДЛЯ ЗВОНКОВ JITSI -->
-  <div id="jitsi-modal">
-    <button class="close-jitsi-btn" id="close-jitsi-btn">Завершить звонок</button>
-    <div id="jitsi-container"></div>
+  <!-- НАТИВНАЯ ПАНЕЛЬ ЗВОНКА ВНУТРИ ПРИЛОЖЕНИЯ -->
+  <div id="native-call-banner">
+    <div class="call-info">
+      <i class="fas fa-phone-volume fa-spin"></i>
+      <span id="call-status-text">Идет аудиовызов...</span>
+    </div>
+    <div class="call-actions">
+      <button id="end-native-call">Завершить</button>
+    </div>
   </div>
+  <audio id="call-audio-stream" autoplay></audio>
 
   <!-- АВТОРИЗАЦИЯ -->
   <div id="auth-screen">
@@ -192,7 +194,6 @@
           <span id="sidebar-my-username">@user</span>
         </div>
       </div>
-      <!-- ИЗМЕНЕНИЕ ТОЛЬКО ИМЕНИ (ЮЗЕР НЕ ТРОГАЕТСЯ) -->
       <div class="profile-edit-box">
         <input type="text" id="new-name-input" placeholder="Новое имя...">
         <button id="save-name-btn">ОК</button>
@@ -347,12 +348,13 @@
     const cancelReplyBtn = document.getElementById('cancel-reply-btn');
     const vipEmojiBtn = document.getElementById('vip-emoji-btn');
 
-    // Jitsi встроенные элементы
-    const jitsiModal = document.getElementById('jitsi-modal');
-    const closeJitsiBtn = document.getElementById('close-jitsi-btn');
-    let jitsiApi = null;
+    // Нативные элементы звонка
+    const nativeCallBanner = document.getElementById('native-call-banner');
+    const endNativeCallBtn = document.getElementById('end-native-call');
+    const callAudioStream = document.getElementById('call-audio-stream');
+    let localAudioStream = null;
 
-    let usersProfiles = {}; // Сохраняем Имена и Аватарки пользователей
+    let usersProfiles = {};
     let replyingToMessage = null;
 
     function resizeImage(file, maxWidth = 150, maxHeight = 150) {
@@ -431,7 +433,6 @@
       initTypingListener();
     }
 
-    // Сохранение только Имени (Юзер остается неизменным!)
     saveNameBtn.onclick = async () => {
       const newName = newNameInput.value.trim();
       if (!newName) return;
@@ -537,7 +538,6 @@
       };
     });
 
-    // УНИКАЛЬНАЯ VIP КНОПКА С ЭФФЕКТОМ
     vipEmojiBtn.onclick = async () => {
       await sendMessage({ text: "👑 ✨ [EXCLUSIVE VIP OWNER BROADCAST] 💎⚡", isVip: true });
     };
@@ -631,50 +631,33 @@
 
     closeSidebar.addEventListener('click', () => { sidebar.classList.remove('open'); });
 
-    // ВСТРОЕННЫЕ ЗВОНКИ JITSI ПРЯМО В САЙТЕ (БЕЗ РЕДИРЕКТОВ)
-    function startInAppJitsiCall(audioOnly) {
-      jitsiModal.style.display = 'flex';
-      const roomName = "GoodChatRoom_" + currentChatRoom;
-      const domain = "meet.jit.si";
-      
-      const options = {
-        roomName: roomName,
-        width: '100%',
-        height: '100%',
-        parentNode: document.querySelector('#jitsi-container'),
-        configOverwrite: {
-          startWithVideoMuted: audioOnly,
-          startWithAudioMuted: false
-        },
-        interfaceConfigOverwrite: {
-          TOOLBAR_BUTTONS: [
-            'microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen',
-            'fodeviceselection', 'hangup', 'chat', 'settings', 'raisehand',
-            'videoquality', 'tileview'
-          ]
-        },
-        userInfo: {
-          displayName: usersProfiles[myUsername]?.displayName || myUsername
-        }
-      };
-
-      if (jitsiApi) {
-        jitsiApi.dispose();
+    // НАТИВНЫЙ АУДИОЗВОНОК (АКТИВАЦИЯ МИКРОФОНА)
+    async function startNativeAudioCall() {
+      try {
+        localAudioStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        callAudioStream.srcObject = localAudioStream;
+        nativeCallBanner.style.display = 'flex';
+      } catch (err) {
+        alert("Не удалось получить доступ к микрофону: " + err.message);
       }
-      jitsiApi = new JitsiMeetExternalAPI(domain, options);
     }
 
-    closeJitsiBtn.onclick = () => {
-      if (jitsiApi) {
-        jitsiApi.dispose();
-        jitsiApi = null;
+    endNativeCallBtn.onclick = () => {
+      if (localAudioStream) {
+        localAudioStream.getTracks().forEach(track => track.stop());
+        localAudioStream = null;
       }
-      jitsiModal.style.display = 'none';
-      document.querySelector('#jitsi-container').innerHTML = '';
+      callAudioStream.srcObject = null;
+      nativeCallBanner.style.display = 'none';
     };
 
-    callBtn.addEventListener('click', () => startInAppJitsiCall(true));      // Аудиозвонок
-    videoCallBtn.addEventListener('click', () => startInAppJitsiCall(false)); // Видеозвонок
+    callBtn.addEventListener('click', startNativeAudioCall);
+
+    // Видеозвонок оставляем через быструю бесперебойную ссылку в новом окне
+    videoCallBtn.addEventListener('click', () => {
+      const roomName = "GoodChatRoom_" + currentChatRoom;
+      window.open(`https://meet.jit.si/${roomName}`, '_blank');
+    });
 
     let unsubscribeMessages = null;
 
