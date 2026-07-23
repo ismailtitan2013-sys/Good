@@ -63,10 +63,16 @@
     #login-btn { background: var(--accent-color); color: white; }
     #register-btn { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); }
 
-    /* НАТИВНАЯ ПАНЕЛЬ АУДИОЗВОНКА */
+    /* НАТИВНЫЕ ПАНЕЛИ ЗВОНКОВ (АУДИО И ВИДЕО) */
     #native-call-banner { display: none; position: absolute; top: 0; left: 0; width: 100%; background: linear-gradient(90deg, #2481cc, #2cb67d); color: white; padding: 10px 20px; z-index: 500; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: fadeIn 0.3s ease; }
     .call-info { display: flex; align-items: center; gap: 10px; font-weight: 600; }
     .call-actions button { background: #e53935; color: white; border: none; padding: 6px 14px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+
+    #native-video-modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 500; flex-direction: column; justify-content: space-between; padding: 20px; }
+    .video-grid { flex: 1; display: flex; justify-content: center; align-items: center; gap: 10px; }
+    .video-grid video { width: 100%; max-width: 600px; height: 100%; max-height: 450px; border-radius: 12px; background: #111; object-fit: cover; }
+    .video-controls { display: flex; justify-content: center; padding-bottom: 10px; }
+    .video-controls button { background: #e53935; color: white; border: none; padding: 10px 24px; border-radius: 24px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
 
     /* САЙДБАР */
     #sidebar { position: absolute; left: 0; top: 0; width: 300px; height: 100%; background: var(--sidebar-bg); z-index: 50; border-right: 1px solid var(--input-border); display: flex; flex-direction: column; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 5px 0 25px rgba(0,0,0,0.15); }
@@ -78,7 +84,7 @@
     .avatar-container { position: relative; width: 46px; height: 46px; border-radius: 50%; overflow: hidden; border: 2px solid var(--accent-color); cursor: pointer; flex-shrink: 0; }
     .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
     .avatar-container input { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
-    .profile-info h4 { font-size: 0.95rem; color: var(--text-color); font-weight: 600; }
+    .profile-info h4 { font-size: 0.95rem; color: var(--text-color); font-weight: 600; display: flex; align-items: center; gap: 5px; }
     .profile-info span { font-size: 0.75rem; color: var(--text-secondary); }
     
     .profile-edit-box { display: flex; gap: 6px; width: 100%; margin-top: 4px; }
@@ -114,9 +120,12 @@
 
     .msg-header { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
     .msg-avatar { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
-    .author { font-size: 0.75rem; color: var(--accent-color); font-weight: 600; }
+    .author { font-size: 0.75rem; color: var(--accent-color); font-weight: 600; display: flex; align-items: center; gap: 4px; }
     .message.my .author { color: #234b6e; }
     [data-theme="dark"] .message.my .author { color: #82b1ff; }
+
+    /* ЗНАЧОК ВЕРИФИКАЦИИ ВОЗЛЕ ИМЕНИ */
+    .verified-badge { width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%231da1f2" d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0zM385.3 179.3l-152 152c-6.2 6.2-16.4 6.2-22.6 0l-72-72c-6.2-6.2-6.2-16.4 0-22.6s16.4-6.2 22.6 0L221 293.4l141.7-141.7c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"/></svg>') no-repeat center center; background-size: contain; flex-shrink: 0; }
 
     .reply-preview-box { background: rgba(0,0,0,0.05); border-left: 2px solid var(--accent-color); padding: 3px 6px; border-radius: 4px; font-size: 0.8rem; opacity: 0.85; margin-bottom: 2px; }
     .active-reply-banner { display: none; padding: 8px 16px; background: var(--card-bg); border-top: 1px solid var(--input-border); justify-content: space-between; align-items: center; font-size: 0.85rem; z-index: 5; }
@@ -126,11 +135,21 @@
     
     .chat-img { max-width: 200px; border-radius: 10px; display: block; margin-top: 4px; }
 
-    /* ЭМОДЗИ ПАНЕЛЬ */
+    /* ЭМОДЗИ ПАНЕЛЬ И VIP МОДАЛКА */
     #emoji-picker { display: flex; gap: 6px; padding: 6px 14px; background: var(--header-bg); border-top: 1px solid var(--input-border); overflow-x: auto; align-items: center; z-index: 5; }
     .emoji-btn { background: none; border: none; font-size: 1.15rem; cursor: pointer; padding: 2px; }
     .emoji-btn:hover { transform: scale(1.2); }
     .vip-emoji-btn { background: linear-gradient(135deg, #ffd700, #ffa500); border: none; font-size: 0.78rem; padding: 3px 8px; border-radius: 10px; cursor: pointer; font-weight: 700; color: #000; display: none; box-shadow: 0 1px 4px rgba(0,0,0,0.2); flex-shrink: 0; }
+
+    /* МОДАЛКА ДЛЯ VIP ВВОДА */
+    #vip-modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 600; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+    .vip-modal-box { background: var(--card-bg); padding: 25px; border-radius: 16px; border: 2px solid #ffd700; width: 90%; max-width: 340px; display: flex; flex-direction: column; gap: 14px; text-align: center; box-shadow: 0 0 25px rgba(255,215,0,0.4); }
+    .vip-modal-box h3 { color: #ffd700; font-size: 1.2rem; }
+    .vip-modal-box input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ffd700; background: var(--input-bg); color: var(--text-color); outline: none; text-align: center; }
+    .vip-modal-actions { display: flex; gap: 10px; }
+    .vip-modal-actions button { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
+    #send-vip-msg { background: linear-gradient(135deg, #ffd700, #ffa500); color: #000; }
+    #close-vip-modal { background: #e53935; color: #fff; }
 
     /* АУДИОПЛЕЕР */
     .custom-voice-player { display: flex; align-items: center; gap: 8px; min-width: 150px; padding: 2px 0; }
@@ -151,17 +170,40 @@
 <body data-theme="dark">
   <canvas id="bg-canvas"></canvas>
 
-  <!-- НАТИВНАЯ ПАНЕЛЬ ЗВОНКА ВНУТРИ ПРИЛОЖЕНИЯ -->
+  <!-- МОДАЛКА ДЛЯ ВВОДА VIP СООБЩЕНИЯ -->
+  <div id="vip-modal">
+    <div class="vip-modal-box">
+      <h3>👑 VIP Трансляция</h3>
+      <input type="text" id="vip-text-input" placeholder="Введи золотой текст...">
+      <div class="vip-modal-actions">
+        <button id="send-vip-msg">Отправить</button>
+        <button id="close-vip-modal">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- НАТИВНЫЙ АУДИОЗВОНОК -->
   <div id="native-call-banner">
     <div class="call-info">
       <i class="fas fa-phone-volume fa-spin"></i>
-      <span id="call-status-text">Идет аудиовызов...</span>
+      <span>Аудиовызов активен...</span>
     </div>
     <div class="call-actions">
       <button id="end-native-call">Завершить</button>
     </div>
   </div>
   <audio id="call-audio-stream" autoplay></audio>
+
+  <!-- НАТИВНЫЙ ВИДЕОЗВОНОК -->
+  <div id="native-video-modal">
+    <div class="lk-header" style="color: #fff; padding: 10px; font-weight: 600;">Видеовызов Good</div>
+    <div class="video-grid">
+      <video id="local-video" autoplay playsinline muted></video>
+    </div>
+    <div class="video-controls">
+      <button id="end-video-call">Завершить видео</button>
+    </div>
+  </div>
 
   <!-- АВТОРИЗАЦИЯ -->
   <div id="auth-screen">
@@ -190,7 +232,7 @@
           <input type="file" id="avatar-file-input" accept="image/*">
         </div>
         <div class="profile-info">
-          <h4 id="sidebar-my-name">Имя</h4>
+          <h4 id="sidebar-my-name">Имя <span id="sidebar-badge" style="display:none;" class="verified-badge"></span></h4>
           <span id="sidebar-my-username">@user</span>
         </div>
       </div>
@@ -269,7 +311,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // ЖИВОЙ ФОН: ЧАСТИЦЫ
+    // ФОН ЧАСТИЦЫ
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -330,6 +372,7 @@
     const userAvatarImg = document.getElementById('user-avatar-img');
     const sidebarMyName = document.getElementById('sidebar-my-name');
     const sidebarMyUsername = document.getElementById('sidebar-my-username');
+    const sidebarBadge = document.getElementById('sidebar-badge');
     const newNameInput = document.getElementById('new-name-input');
     const saveNameBtn = document.getElementById('save-name-btn');
 
@@ -348,11 +391,22 @@
     const cancelReplyBtn = document.getElementById('cancel-reply-btn');
     const vipEmojiBtn = document.getElementById('vip-emoji-btn');
 
-    // Нативные элементы звонка
+    // VIP Модалка
+    const vipModal = document.getElementById('vip-modal');
+    const vipTextInput = document.getElementById('vip-text-input');
+    const sendVipMsgBtn = document.getElementById('send-vip-msg');
+    const closeVipModalBtn = document.getElementById('close-vip-modal');
+
+    // Звонки нативные
     const nativeCallBanner = document.getElementById('native-call-banner');
     const endNativeCallBtn = document.getElementById('end-native-call');
     const callAudioStream = document.getElementById('call-audio-stream');
     let localAudioStream = null;
+
+    const nativeVideoModal = document.getElementById('native-video-modal');
+    const localVideo = document.getElementById('local-video');
+    const endVideoCallBtn = document.getElementById('end-video-call');
+    let localVideoStream = null;
 
     let usersProfiles = {};
     let replyingToMessage = null;
@@ -419,9 +473,10 @@
       if (userData.avatar) {
         userAvatarImg.src = userData.avatar;
       }
-      sidebarMyName.textContent = myDisplayName;
+      sidebarMyName.innerHTML = `${myDisplayName} <span class="verified-badge"></span>`;
       sidebarMyUsername.textContent = "@" + myUsername;
       newNameInput.value = myDisplayName;
+      sidebarBadge.style.display = 'inline-flex';
 
       if (myUsername === "MilkyVIP") {
         vipEmojiBtn.style.display = 'inline-block';
@@ -436,7 +491,7 @@
     saveNameBtn.onclick = async () => {
       const newName = newNameInput.value.trim();
       if (!newName) return;
-      sidebarMyName.textContent = newName;
+      sidebarMyName.innerHTML = `${newName} <span class="verified-badge"></span>`;
       await setDoc(doc(db, "users", myUsername), { displayName: newName }, { merge: true });
       alert("Имя успешно изменено!");
     };
@@ -538,8 +593,23 @@
       };
     });
 
-    vipEmojiBtn.onclick = async () => {
-      await sendMessage({ text: "👑 ✨ [EXCLUSIVE VIP OWNER BROADCAST] 💎⚡", isVip: true });
+    // VIP ОТКРЫТИЕ МОДАЛКИ
+    vipEmojiBtn.onclick = () => {
+      vipModal.style.display = 'flex';
+      vipTextInput.value = '';
+      vipTextInput.focus();
+    };
+
+    closeVipModalBtn.onclick = () => {
+      vipModal.style.display = 'none';
+    };
+
+    sendVipMsgBtn.onclick = async () => {
+      const text = vipTextInput.value.trim();
+      if (text) {
+        await sendMessage({ text: `👑 [VIP]: ${text} ✨`, isVip: true });
+        vipModal.style.display = 'none';
+      }
     };
 
     cancelReplyBtn.onclick = () => {
@@ -580,7 +650,7 @@
 
           const contactCard = document.createElement('div');
           contactCard.className = 'contact-item dynamic-contact';
-          contactCard.innerHTML = `<span><i class="fas fa-user-circle" style="color:var(--accent-color); margin-right:10px;"></i>${dispName} (@${uName})</span>`;
+          contactCard.innerHTML = `<span><i class="fas fa-user-circle" style="color:var(--accent-color); margin-right:10px;"></i>${dispName} (@${uName}) ${uName === 'MilkyVIP' ? '<span class="verified-badge"></span>' : ''}</span>`;
           contactCard.onclick = () => {
             const roomMembers = [myUsername, uName].sort();
             currentChatRoom = `pm_${roomMembers[0]}_${roomMembers[1]}`;
@@ -611,7 +681,7 @@
             adminCard.className = 'admin-user-card dynamic-admin';
             adminCard.innerHTML = `
               <div>
-                <div style="font-weight:600;">${uData.displayName || uName} (@${uName}) ${uData.banned ? '<span style="color:#e53935">(Бан)</span>' : ''}</div>
+                <div style="font-weight:600; display:flex; align-items:center; gap:4px;">${uData.displayName || uName} (@${uName}) ${uName === 'MilkyVIP' ? '<span class="verified-badge"></span>' : ''} ${uData.banned ? '<span style="color:#e53935">(Бан)</span>' : ''}</div>
               </div>
               ${uName !== "MilkyVIP" ? `<button class="ban-btn" style="background:${uData.banned ? '#4fae4e' : '#e53935'}">${uData.banned ? 'Разбан' : 'Бан'}</button>` : ''}
             `;
@@ -631,14 +701,14 @@
 
     closeSidebar.addEventListener('click', () => { sidebar.classList.remove('open'); });
 
-    // НАТИВНЫЙ АУДИОЗВОНОК (АКТИВАЦИЯ МИКРОФОНА)
+    // АУДИОЗВОНОК
     async function startNativeAudioCall() {
       try {
         localAudioStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
         callAudioStream.srcObject = localAudioStream;
         nativeCallBanner.style.display = 'flex';
       } catch (err) {
-        alert("Не удалось получить доступ к микрофону: " + err.message);
+        alert("Ошибка микрофона: " + err.message);
       }
     }
 
@@ -653,11 +723,27 @@
 
     callBtn.addEventListener('click', startNativeAudioCall);
 
-    // Видеозвонок оставляем через быструю бесперебойную ссылку в новом окне
-    videoCallBtn.addEventListener('click', () => {
-      const roomName = "GoodChatRoom_" + currentChatRoom;
-      window.open(`https://meet.jit.si/${roomName}`, '_blank');
-    });
+    // ВИДЕОЗВОНОК (НАТИВНЫЙ ВНУТРИ ПРИЛОЖЕНИЯ)
+    async function startNativeVideoCall() {
+      try {
+        localVideoStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        localVideo.srcObject = localVideoStream;
+        nativeVideoModal.style.display = 'flex';
+      } catch (err) {
+        alert("Ошибка камеры/микрофона: " + err.message);
+      }
+    }
+
+    endVideoCallBtn.onclick = () => {
+      if (localVideoStream) {
+        localVideoStream.getTracks().forEach(track => track.stop());
+        localVideoStream = null;
+      }
+      localVideo.srcObject = null;
+      nativeVideoModal.style.display = 'none';
+    };
+
+    videoCallBtn.addEventListener('click', startNativeVideoCall);
 
     let unsubscribeMessages = null;
 
@@ -697,7 +783,9 @@
 
           const authorEl = document.createElement('span');
           authorEl.className = 'author';
-          authorEl.textContent = usersProfiles[data.username]?.displayName || data.username || 'Аноним';
+          const dispName = usersProfiles[data.username]?.displayName || data.username || 'Аноним';
+          const isVerified = data.username === 'MilkyVIP' ? '<span class="verified-badge"></span>' : '';
+          authorEl.innerHTML = `${dispName} ${isVerified}`;
           msgHeader.appendChild(authorEl);
 
           newMessage.appendChild(msgHeader);
