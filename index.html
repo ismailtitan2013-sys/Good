@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Good</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <script src="https://unpkg.com/@livekit/client-sdk-js@latest/dist/livekit-client.umd.js"></script>
   <style>
     :root {
       --bg-color: #f0f2f5;
@@ -63,16 +62,6 @@
     .auth-buttons button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
     #login-btn { background: var(--accent-color); color: white; }
     #register-btn { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); }
-
-    /* ОКНО ЗВОНКА LIVEKIT */
-    #livekit-call-modal { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #0e1621; z-index: 400; display: none; flex-direction: column; justify-content: space-between; padding: 20px; }
-    .lk-header { display: flex; justify-content: space-between; align-items: center; color: #fff; font-size: 1.1rem; font-weight: 600; }
-    #lk-video-grid { flex: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; align-content: center; justify-content: center; padding: 10px; overflow-y: auto; }
-    #lk-video-grid video { width: 100%; height: 100%; max-height: 450px; border-radius: 12px; background: #000; object-fit: cover; border: 1px solid #242f3d; }
-    .lk-controls { display: flex; justify-content: center; gap: 15px; padding-bottom: 10px; }
-    .lk-btn { background: #242f3d; color: #fff; border: none; width: 48px; height: 48px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-    .lk-btn:hover { background: #34465d; }
-    .lk-btn.end-call { background: #e53935; }
 
     /* САЙДБАР */
     #sidebar { position: absolute; left: 0; top: 0; width: 300px; height: 100%; background: var(--sidebar-bg); z-index: 50; border-right: 1px solid var(--input-border); display: flex; flex-direction: column; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 5px 0 25px rgba(0,0,0,0.15); }
@@ -150,20 +139,6 @@
 <body data-theme="dark">
   <canvas id="bg-canvas"></canvas>
 
-  <!-- ОКНО ЗВОНКА LIVEKIT -->
-  <div id="livekit-call-modal">
-    <div class="lk-header">
-      <span id="lk-room-name">Звонок Good</span>
-      <span id="lk-status" style="font-size: 0.85rem; color: #4fae4e;">Подключение...</span>
-    </div>
-    <div id="lk-video-grid"></div>
-    <div class="lk-controls">
-      <button class="lk-btn" id="lk-mic-toggle" title="Микрофон"><i class="fas fa-microphone"></i></button>
-      <button class="lk-btn" id="lk-cam-toggle" title="Камера"><i class="fas fa-video"></i></button>
-      <button class="lk-btn end-call" id="lk-end-call" title="Завершить"><i class="fas fa-phone-slash"></i></button>
-    </div>
-  </div>
-
   <!-- АВТОРИЗАЦИЯ -->
   <div id="auth-screen">
     <div class="auth-box">
@@ -209,7 +184,7 @@
         </div>
       </div>
       <div class="header-right">
-        <button class="top-action-btn" id="theme-toggle-btn" title="Сменить тему"><i class="fas fa-moon"></i></button>
+        <button class="top-action-btn" id="theme-toggle-btn" title="Тема"><i class="fas fa-moon"></i></button>
         <button class="top-action-btn" id="call-btn" title="Звонок"><i class="fas fa-phone-alt"></i></button>
         <button class="top-action-btn" id="video-call-btn" title="Видеозвонок"><i class="fas fa-video"></i></button>
         <button id="logout-btn">Выйти</button>
@@ -339,18 +314,6 @@
     const replyToText = document.getElementById('reply-to-text');
     const cancelReplyBtn = document.getElementById('cancel-reply-btn');
     const vipEmojiBtn = document.getElementById('vip-emoji-btn');
-
-    const lkModal = document.getElementById('livekit-call-modal');
-    const lkVideoGrid = document.getElementById('lk-video-grid');
-    const lkStatus = document.getElementById('lk-status');
-    const lkRoomName = document.getElementById('lk-room-name');
-    const lkMicToggle = document.getElementById('lk-mic-toggle');
-    const lkCamToggle = document.getElementById('lk-cam-toggle');
-    const lkEndCall = document.getElementById('lk-end-call');
-
-    let lkRoom = null;
-    let isMicMuted = false;
-    let isCamMuted = false;
 
     let usersAvatars = {};
     let replyingToMessage = null;
@@ -610,78 +573,14 @@
 
     closeSidebar.addEventListener('click', () => { sidebar.classList.remove('open'); });
 
-    // ИНТЕГРАЦИЯ LIVEKIT С ТВОИМ URL ПРОЕКТА
-    async function startLiveKitCall(withVideo) {
-      lkModal.style.display = 'flex';
-      lkVideoGrid.innerHTML = '';
-      lkStatus.textContent = "Подключение к комнате...";
-      lkRoomName.textContent = `Комната: ${currentChatTitle.textContent}`;
-
-      try {
-        const wsUrl = 'wss://good-7z5cdscn.livekit.cloud';
-        const roomName = "GoodChat_" + currentChatRoom;
-        const participantName = myUsername;
-
-        const tokenRes = await fetch(`https://livekit-demo-token-server.vercel.app/api/create-token?room=${roomName}&identity=${participantName}`);
-        const data = await tokenRes.json();
-        const token = data.token;
-
-        lkRoom = new LivekitClient.Room();
-
-        lkRoom.on(LivekitClient.RoomEvent.TrackSubscribed, (track, publication, participant) => {
-          if (track.kind === LivekitClient.Track.Kind.Video || track.kind === LivekitClient.Track.Kind.Audio) {
-            const element = track.attach();
-            lkVideoGrid.appendChild(element);
-          }
-        });
-
-        await lkRoom.connect(wsUrl, token);
-        lkStatus.textContent = "Звонок активен";
-
-        await lkRoom.localParticipant.enableMicrophone(true);
-        if (withVideo) {
-          await lkRoom.localParticipant.enableCamera(true);
-          const localTracks = lkRoom.localParticipant.videoTrackPublications;
-          for (const pub of localTracks.values()) {
-            if (pub.videoTrack) {
-              const el = pub.videoTrack.attach();
-              lkVideoGrid.appendChild(el);
-            }
-          }
-        }
-
-      } catch (err) {
-        console.error(err);
-        lkStatus.textContent = "Ошибка соединения. Проверьте сеть.";
-      }
+    // СТАБИЛЬНЫЕ ЗВОНКИ ЧЕРЕЗ JITSI
+    function openSecureCall() {
+      const roomName = "GoodChatRoom_" + currentChatRoom;
+      window.open(`https://meet.jit.si/${roomName}`, '_blank');
     }
 
-    async function closeLiveKitCall() {
-      if (lkRoom) {
-        await lkRoom.disconnect();
-        lkRoom = null;
-      }
-      lkModal.style.display = 'none';
-      lkVideoGrid.innerHTML = '';
-    }
-
-    callBtn.addEventListener('click', () => startLiveKitCall(false));
-    videoCallBtn.addEventListener('click', () => startLiveKitCall(true));
-    lkEndCall.addEventListener('click', closeLiveKitCall);
-
-    lkMicToggle.addEventListener('click', () => {
-      if (!lkRoom) return;
-      isMicMuted = !isMicMuted;
-      lkRoom.localParticipant.setMicrophoneEnabled(!isMicMuted);
-      lkMicToggle.innerHTML = isMicMuted ? '<i class="fas fa-microphone-slash" style="color:#e53935"></i>' : '<i class="fas fa-microphone"></i>';
-    });
-
-    lkCamToggle.addEventListener('click', async () => {
-      if (!lkRoom) return;
-      isCamMuted = !isCamMuted;
-      await lkRoom.localParticipant.setCameraEnabled(!isCamMuted);
-      lkCamToggle.innerHTML = isCamMuted ? '<i class="fas fa-video-slash" style="color:#e53935"></i>' : '<i class="fas fa-video"></i>';
-    });
+    callBtn.addEventListener('click', openSecureCall);
+    videoCallBtn.addEventListener('click', openSecureCall);
 
     let unsubscribeMessages = null;
 
