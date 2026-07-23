@@ -63,16 +63,20 @@
     #login-btn { background: var(--accent-color); color: white; }
     #register-btn { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); }
 
-    /* НАТИВНЫЕ ПАНЕЛИ ЗВОНКОВ (АУДИО И ВИДЕО) */
-    #native-call-banner { display: none; position: absolute; top: 0; left: 0; width: 100%; background: linear-gradient(90deg, #2481cc, #2cb67d); color: white; padding: 10px 20px; z-index: 500; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); animation: fadeIn 0.3s ease; }
-    .call-info { display: flex; align-items: center; gap: 10px; font-weight: 600; }
-    .call-actions button { background: #e53935; color: white; border: none; padding: 6px 14px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+    /* ВХОДЯЩИЙ / ИД ТАКУЩИЙ ЗВОНОК */
+    #call-screen { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(14, 22, 33, 0.95); z-index: 600; flex-direction: column; justify-content: center; align-items: center; gap: 25px; color: #fff; }
+    .call-avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-color); box-shadow: 0 0 20px rgba(36,129,204,0.5); }
+    .call-buttons-group { display: flex; gap: 30px; margin-top: 20px; }
+    .call-action-btn { width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 1.3rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    #accept-call { background: #4fae4e; }
+    #reject-call { background: #e53935; }
 
-    #native-video-modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 500; flex-direction: column; justify-content: space-between; padding: 20px; }
-    .video-grid { flex: 1; display: flex; justify-content: center; align-items: center; gap: 10px; }
-    .video-grid video { width: 100%; max-width: 600px; height: 100%; max-height: 450px; border-radius: 12px; background: #111; object-fit: cover; }
-    .video-controls { display: flex; justify-content: center; padding-bottom: 10px; }
-    .video-controls button { background: #e53935; color: white; border: none; padding: 10px 24px; border-radius: 24px; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+    /* ЗАКРЕПЛЕННОЕ СООБЩЕНИЕ */
+    #pinned-banner { display: none; background: var(--card-bg); padding: 8px 16px; border-bottom: 1px solid var(--input-border); font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; z-index: 4; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+    /* ПОИСК ПО СООБЩЕНИЯМ */
+    #search-bar-container { display: none; padding: 6px 16px; background: var(--header-bg); border-bottom: 1px solid var(--input-border); z-index: 5; }
+    #search-bar-container input { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); outline: none; font-size: 0.9rem; }
 
     /* САЙДБАР */
     #sidebar { position: absolute; left: 0; top: 0; width: 300px; height: 100%; background: var(--sidebar-bg); z-index: 50; border-right: 1px solid var(--input-border); display: flex; flex-direction: column; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); box-shadow: 5px 0 25px rgba(0,0,0,0.15); }
@@ -124,24 +128,24 @@
     .message.my .author { color: #234b6e; }
     [data-theme="dark"] .message.my .author { color: #82b1ff; }
 
-    /* ЗНАЧОК ВЕРИФИКАЦИИ ВОЗЛЕ ИМЕНИ */
+    /* СТРОГО У MILKYVIP */
     .verified-badge { width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%231da1f2" d="M256 0C114.6 0 0 114.6 0 256s114.6 256 256 256 256-114.6 256-256S397.4 0 256 0zM385.3 179.3l-152 152c-6.2 6.2-16.4 6.2-22.6 0l-72-72c-6.2-6.2-6.2-16.4 0-22.6s16.4-6.2 22.6 0L221 293.4l141.7-141.7c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"/></svg>') no-repeat center center; background-size: contain; flex-shrink: 0; }
 
     .reply-preview-box { background: rgba(0,0,0,0.05); border-left: 2px solid var(--accent-color); padding: 3px 6px; border-radius: 4px; font-size: 0.8rem; opacity: 0.85; margin-bottom: 2px; }
     .active-reply-banner { display: none; padding: 8px 16px; background: var(--card-bg); border-top: 1px solid var(--input-border); justify-content: space-between; align-items: center; font-size: 0.85rem; z-index: 5; }
 
-    .delete-msg-btn { position: absolute; top: 6px; right: 8px; background: none; border: none; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; }
-    .delete-msg-btn:hover { color: #e53935; }
-    
+    .msg-actions { display: flex; gap: 8px; position: absolute; top: 6px; right: 8px; font-size: 0.75rem; }
+    .msg-actions button { background: none; border: none; color: var(--text-secondary); cursor: pointer; }
+    .msg-actions button:hover { color: var(--accent-color); }
+
     .chat-img { max-width: 200px; border-radius: 10px; display: block; margin-top: 4px; }
 
-    /* ЭМОДЗИ ПАНЕЛЬ И VIP МОДАЛКА */
+    /* ЭМОДЗИ И VIP МОДАЛКА */
     #emoji-picker { display: flex; gap: 6px; padding: 6px 14px; background: var(--header-bg); border-top: 1px solid var(--input-border); overflow-x: auto; align-items: center; z-index: 5; }
     .emoji-btn { background: none; border: none; font-size: 1.15rem; cursor: pointer; padding: 2px; }
     .emoji-btn:hover { transform: scale(1.2); }
     .vip-emoji-btn { background: linear-gradient(135deg, #ffd700, #ffa500); border: none; font-size: 0.78rem; padding: 3px 8px; border-radius: 10px; cursor: pointer; font-weight: 700; color: #000; display: none; box-shadow: 0 1px 4px rgba(0,0,0,0.2); flex-shrink: 0; }
 
-    /* МОДАЛКА ДЛЯ VIP ВВОДА */
     #vip-modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 600; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
     .vip-modal-box { background: var(--card-bg); padding: 25px; border-radius: 16px; border: 2px solid #ffd700; width: 90%; max-width: 340px; display: flex; flex-direction: column; gap: 14px; text-align: center; box-shadow: 0 0 25px rgba(255,215,0,0.4); }
     .vip-modal-box h3 { color: #ffd700; font-size: 1.2rem; }
@@ -170,38 +174,26 @@
 <body data-theme="dark">
   <canvas id="bg-canvas"></canvas>
 
+  <!-- ОКНО ВХОДЯЩЕГО / ИСХОДЯЩЕГО ЗВОНКА -->
+  <div id="call-screen">
+    <img id="call-user-avatar" class="call-avatar" src="https://via.placeholder.com/150" alt="Аватар">
+    <h3 id="call-username">Пользователь</h3>
+    <p id="call-status-label" style="color: #87909b;">Вызов...</p>
+    <div class="call-buttons-group">
+      <button class="call-action-btn" id="accept-call" title="Принять"><i class="fas fa-phone"></i></button>
+      <button class="call-action-btn" id="reject-call" title="Сбросить"><i class="fas fa-phone-slash"></i></button>
+    </div>
+  </div>
+
   <!-- МОДАЛКА ДЛЯ ВВОДА VIP СООБЩЕНИЯ -->
   <div id="vip-modal">
     <div class="vip-modal-box">
-      <h3>👑 VIP Трансляция</h3>
-      <input type="text" id="vip-text-input" placeholder="Введи золотой текст...">
+      <h3>👑 Miilkii VIP Трансляция</h3>
+      <input type="text" id="vip-text-input" placeholder="Введи эксклюзивный текст...">
       <div class="vip-modal-actions">
         <button id="send-vip-msg">Отправить</button>
         <button id="close-vip-modal">Отмена</button>
       </div>
-    </div>
-  </div>
-
-  <!-- НАТИВНЫЙ АУДИОЗВОНОК -->
-  <div id="native-call-banner">
-    <div class="call-info">
-      <i class="fas fa-phone-volume fa-spin"></i>
-      <span>Аудиовызов активен...</span>
-    </div>
-    <div class="call-actions">
-      <button id="end-native-call">Завершить</button>
-    </div>
-  </div>
-  <audio id="call-audio-stream" autoplay></audio>
-
-  <!-- НАТИВНЫЙ ВИДЕОЗВОНОК -->
-  <div id="native-video-modal">
-    <div class="lk-header" style="color: #fff; padding: 10px; font-weight: 600;">Видеовызов Good</div>
-    <div class="video-grid">
-      <video id="local-video" autoplay playsinline muted></video>
-    </div>
-    <div class="video-controls">
-      <button id="end-video-call">Завершить видео</button>
     </div>
   </div>
 
@@ -256,12 +248,24 @@
         </div>
       </div>
       <div class="header-right">
+        <button class="top-action-btn" id="search-toggle-btn" title="Поиск"><i class="fas fa-search"></i></button>
         <button class="top-action-btn" id="theme-toggle-btn" title="Тема"><i class="fas fa-moon"></i></button>
         <button class="top-action-btn" id="call-btn" title="Аудиозвонок"><i class="fas fa-phone-alt"></i></button>
         <button class="top-action-btn" id="video-call-btn" title="Видеозвонок"><i class="fas fa-video"></i></button>
         <button id="logout-btn">Выйти</button>
       </div>
     </header>
+
+    <!-- ПОИСКОВАЯ СТРОКА -->
+    <div id="search-bar-container">
+      <input type="text" id="search-input" placeholder="Поиск по сообщениям...">
+    </div>
+
+    <!-- ЗАКРЕПЛЕННОЕ СООБЩЕНИЕ -->
+    <div id="pinned-banner">
+      <div>📌 <span id="pinned-text" style="font-weight: 600;">Нет закрепленных сообщений</span></div>
+      <button id="unpin-btn" style="background:none; border:none; color:#e53935; cursor:pointer; font-weight:bold; display:none;">✕</button>
+    </div>
     
     <div id="chat-box"></div>
 
@@ -271,7 +275,7 @@
     </div>
 
     <div id="emoji-picker">
-      <button class="vip-emoji-btn" id="vip-emoji-btn">👑 VIP</button>
+      <button class="vip-emoji-btn" id="vip-emoji-btn">👑 Miilkii VIP</button>
       <button class="emoji-btn">👍</button>
       <button class="emoji-btn">❤️</button>
       <button class="emoji-btn">🔥</button>
@@ -386,30 +390,36 @@
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const typingIndicator = document.getElementById('typing-indicator');
 
+    const searchToggleBtn = document.getElementById('search-toggle-btn');
+    const searchBarContainer = document.getElementById('search-bar-container');
+    const searchInput = document.getElementById('search-input');
+
+    const pinnedBanner = document.getElementById('pinned-banner');
+    const pinnedText = document.getElementById('pinned-text');
+    const unpinBtn = document.getElementById('unpin-btn');
+
     const activeReplyBanner = document.getElementById('active-reply-banner');
     const replyToText = document.getElementById('reply-to-text');
     const cancelReplyBtn = document.getElementById('cancel-reply-btn');
     const vipEmojiBtn = document.getElementById('vip-emoji-btn');
 
-    // VIP Модалка
     const vipModal = document.getElementById('vip-modal');
     const vipTextInput = document.getElementById('vip-text-input');
     const sendVipMsgBtn = document.getElementById('send-vip-msg');
     const closeVipModalBtn = document.getElementById('close-vip-modal');
 
-    // Звонки нативные
-    const nativeCallBanner = document.getElementById('native-call-banner');
-    const endNativeCallBtn = document.getElementById('end-native-call');
-    const callAudioStream = document.getElementById('call-audio-stream');
-    let localAudioStream = null;
-
-    const nativeVideoModal = document.getElementById('native-video-modal');
-    const localVideo = document.getElementById('local-video');
-    const endVideoCallBtn = document.getElementById('end-video-call');
-    let localVideoStream = null;
+    // Экран звонков
+    const callScreen = document.getElementById('call-screen');
+    const callUserAvatar = document.getElementById('call-user-avatar');
+    const callUsername = document.getElementById('call-username');
+    const callStatusLabel = document.getElementById('call-status-label');
+    const acceptCallBtn = document.getElementById('accept-call');
+    const rejectCallBtn = document.getElementById('reject-call');
 
     let usersProfiles = {};
     let replyingToMessage = null;
+    let currentPinnedMessage = null;
+    let allLoadedMessages = [];
 
     function resizeImage(file, maxWidth = 150, maxHeight = 150) {
       return new Promise((resolve) => {
@@ -473,25 +483,36 @@
       if (userData.avatar) {
         userAvatarImg.src = userData.avatar;
       }
-      sidebarMyName.innerHTML = `${myDisplayName} <span class="verified-badge"></span>`;
+      
+      // СТРОГО У MILKYVIP ЗНАЧОК
+      if (myUsername === "MilkyVIP") {
+        sidebarMyName.innerHTML = `${myDisplayName} <span class="verified-badge"></span>`;
+        sidebarBadge.style.display = 'inline-flex';
+        vipEmojiBtn.style.display = 'inline-block';
+      } else {
+        sidebarMyName.textContent = myDisplayName;
+        sidebarBadge.style.display = 'none';
+        vipEmojiBtn.style.display = 'none';
+      }
+
       sidebarMyUsername.textContent = "@" + myUsername;
       newNameInput.value = myDisplayName;
-      sidebarBadge.style.display = 'inline-flex';
-
-      if (myUsername === "MilkyVIP") {
-        vipEmojiBtn.style.display = 'inline-block';
-      }
 
       authScreen.style.display = 'none';
       mainContainer.style.display = 'flex';
       preloadUsersData();
       initTypingListener();
+      initCallListener();
     }
 
     saveNameBtn.onclick = async () => {
       const newName = newNameInput.value.trim();
       if (!newName) return;
-      sidebarMyName.innerHTML = `${newName} <span class="verified-badge"></span>`;
+      if (myUsername === "MilkyVIP") {
+        sidebarMyName.innerHTML = `${newName} <span class="verified-badge"></span>`;
+      } else {
+        sidebarMyName.textContent = newName;
+      }
       await setDoc(doc(db, "users", myUsername), { displayName: newName }, { merge: true });
       alert("Имя успешно изменено!");
     };
@@ -532,6 +553,63 @@
         }
       });
     }
+
+    // СИСТЕМА УВЕДОМЛЕНИЙ О ЗВОНКАХ ЧЕРЕЗ FIREBASE
+    async function triggerCall(isVideo) {
+      if (!currentChatRoom.startsWith("pm_")) {
+        alert("Звонить можно в личных сообщениях (ЛС)!");
+        return;
+      }
+      const parts = currentChatRoom.replace("pm_", "").split("_");
+      const targetUser = parts[0] === myUsername ? parts[1] : parts[0];
+
+      await setDoc(doc(db, "calls", targetUser), {
+        from: myUsername,
+        type: isVideo ? "video" : "audio",
+        status: "ringing",
+        createdAt: serverTimestamp()
+      });
+
+      callUserAvatar.src = usersProfiles[targetUser]?.avatar || 'https://via.placeholder.com/150';
+      callUsername.textContent = usersProfiles[targetUser]?.displayName || targetUser;
+      callStatusLabel.textContent = "Исходящий вызов...";
+      acceptCallBtn.style.display = "none";
+      callScreen.style.display = "flex";
+    }
+
+    function initCallListener() {
+      onSnapshot(doc(db, "calls", myUsername), (docSnap) => {
+        if (!docSnap.exists()) return;
+        const callData = docSnap.data();
+        if (callData.status === "ringing" && callData.from !== myUsername) {
+          callUserAvatar.src = usersProfiles[callData.from]?.avatar || 'https://via.placeholder.com/150';
+          callUsername.textContent = usersProfiles[callData.from]?.displayName || callData.from;
+          callStatusLabel.textContent = callData.type === "video" ? "Входящий видеозвонок..." : "Входящий аудиозвонок...";
+          acceptCallBtn.style.display = "flex";
+          callScreen.style.display = "flex";
+        } else if (callData.status === "rejected" || callData.status === "ended") {
+          callScreen.style.display = "none";
+        }
+      });
+    }
+
+    acceptCallBtn.onclick = async () => {
+      callStatusLabel.textContent = "Соединение установлено...";
+      acceptCallBtn.style.display = "none";
+      // Открываем Jitsi для реального голоса/видео при ответе
+      setTimeout(() => {
+        callScreen.style.display = "none";
+        window.open(`https://meet.jit.si/GoodChat_${currentChatRoom}`, '_blank');
+      }, 1000);
+    };
+
+    rejectCallBtn.onclick = async () => {
+      callScreen.style.display = "none";
+      await setDoc(doc(db, "calls", myUsername), { status: "rejected" }, { merge: true });
+    };
+
+    callBtn.onclick = () => triggerCall(false);
+    videoCallBtn.onclick = () => triggerCall(true);
 
     avatarFileInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];
@@ -593,21 +671,20 @@
       };
     });
 
-    // VIP ОТКРЫТИЕ МОДАЛКИ
     vipEmojiBtn.onclick = () => {
-      vipModal.style.display = 'flex';
-      vipTextInput.value = '';
-      vipTextInput.focus();
+      if (myUsername === "MilkyVIP") {
+        vipModal.style.display = 'flex';
+        vipTextInput.value = '';
+        vipTextInput.focus();
+      }
     };
 
-    closeVipModalBtn.onclick = () => {
-      vipModal.style.display = 'none';
-    };
+    closeVipModalBtn.onclick = () => { vipModal.style.display = 'none'; };
 
     sendVipMsgBtn.onclick = async () => {
       const text = vipTextInput.value.trim();
       if (text) {
-        await sendMessage({ text: `👑 [VIP]: ${text} ✨`, isVip: true });
+        await sendMessage({ text: `👑 [Miilkii VIP]: ${text} ✨`, isVip: true });
         vipModal.style.display = 'none';
       }
     };
@@ -615,6 +692,17 @@
     cancelReplyBtn.onclick = () => {
       replyingToMessage = null;
       activeReplyBanner.style.display = 'none';
+    };
+
+    // ПОИСК
+    searchToggleBtn.onclick = () => {
+      searchBarContainer.style.display = searchBarContainer.style.display === 'block' ? 'none' : 'block';
+      searchInput.focus();
+    };
+
+    searchInput.oninput = (e) => {
+      const val = e.target.value.toLowerCase();
+      renderMessages(allLoadedMessages.filter(m => m.text?.toLowerCase().includes(val)));
     };
 
     menuBtn.addEventListener('click', async () => {
@@ -701,50 +789,6 @@
 
     closeSidebar.addEventListener('click', () => { sidebar.classList.remove('open'); });
 
-    // АУДИОЗВОНОК
-    async function startNativeAudioCall() {
-      try {
-        localAudioStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-        callAudioStream.srcObject = localAudioStream;
-        nativeCallBanner.style.display = 'flex';
-      } catch (err) {
-        alert("Ошибка микрофона: " + err.message);
-      }
-    }
-
-    endNativeCallBtn.onclick = () => {
-      if (localAudioStream) {
-        localAudioStream.getTracks().forEach(track => track.stop());
-        localAudioStream = null;
-      }
-      callAudioStream.srcObject = null;
-      nativeCallBanner.style.display = 'none';
-    };
-
-    callBtn.addEventListener('click', startNativeAudioCall);
-
-    // ВИДЕОЗВОНОК (НАТИВНЫЙ ВНУТРИ ПРИЛОЖЕНИЯ)
-    async function startNativeVideoCall() {
-      try {
-        localVideoStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-        localVideo.srcObject = localVideoStream;
-        nativeVideoModal.style.display = 'flex';
-      } catch (err) {
-        alert("Ошибка камеры/микрофона: " + err.message);
-      }
-    }
-
-    endVideoCallBtn.onclick = () => {
-      if (localVideoStream) {
-        localVideoStream.getTracks().forEach(track => track.stop());
-        localVideoStream = null;
-      }
-      localVideo.srcObject = null;
-      nativeVideoModal.style.display = 'none';
-    };
-
-    videoCallBtn.addEventListener('click', startNativeVideoCall);
-
     let unsubscribeMessages = null;
 
     function loadMessages() {
@@ -752,111 +796,137 @@
       if (unsubscribeMessages) unsubscribeMessages();
 
       unsubscribeMessages = onSnapshot(q, (snapshot) => {
-        chatBox.innerHTML = ''; 
+        allLoadedMessages = [];
         snapshot.forEach((docSnap) => {
-          const data = docSnap.data();
-
-          const msgRoom = data.room || "global_chat";
-          if (msgRoom !== currentChatRoom) return;
-
-          const newMessage = document.createElement('div');
-          if (data.isVip) {
-            newMessage.className = 'message vip-msg';
-          } else {
-            newMessage.className = data.username === myUsername ? 'message my' : 'message other';
-          }
-          
-          newMessage.onclick = () => {
-            replyingToMessage = { user: usersProfiles[data.username]?.displayName || data.username, text: data.text || 'Медиа' };
-            replyToText.textContent = `${replyingToMessage.user}: ${replyingToMessage.text}`;
-            activeReplyBanner.style.display = 'flex';
-            messageInput.focus();
-          };
-
-          const msgHeader = document.createElement('div');
-          msgHeader.className = 'msg-header';
-
-          const avatarImg = document.createElement('img');
-          avatarImg.className = 'msg-avatar';
-          avatarImg.src = usersProfiles[data.username]?.avatar || 'https://via.placeholder.com/150';
-          msgHeader.appendChild(avatarImg);
-
-          const authorEl = document.createElement('span');
-          authorEl.className = 'author';
-          const dispName = usersProfiles[data.username]?.displayName || data.username || 'Аноним';
-          const isVerified = data.username === 'MilkyVIP' ? '<span class="verified-badge"></span>' : '';
-          authorEl.innerHTML = `${dispName} ${isVerified}`;
-          msgHeader.appendChild(authorEl);
-
-          newMessage.appendChild(msgHeader);
-
-          if (data.replyTo) {
-            const replyBox = document.createElement('div');
-            replyBox.className = 'reply-preview-box';
-            replyBox.textContent = `↩ ${data.replyTo}`;
-            newMessage.appendChild(replyBox);
-          }
-
-          if (data.image) {
-            const imgEl = document.createElement('img');
-            imgEl.src = data.image;
-            imgEl.className = 'chat-img';
-            newMessage.appendChild(imgEl);
-          } else if (data.audio) {
-            const playerWrapper = document.createElement('div');
-            playerWrapper.className = 'custom-voice-player';
-
-            const playBtn = document.createElement('button');
-            playBtn.className = 'play-voice-btn';
-            playBtn.innerHTML = '<i class="fas fa-play"></i>';
-
-            const waves = document.createElement('span');
-            waves.className = 'voice-waves';
-            waves.textContent = ' ▶ ▂▃▅';
-
-            const audioElement = new Audio(data.audio);
-
-            playBtn.onclick = (e) => {
-              e.stopPropagation();
-              if (audioElement.paused) {
-                audioElement.play();
-                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-              } else {
-                audioElement.pause();
-                playBtn.innerHTML = '<i class="fas fa-play"></i>';
-              }
-            };
-
-            audioElement.onended = () => { playBtn.innerHTML = '<i class="fas fa-play"></i>'; };
-
-            playerWrapper.appendChild(playBtn);
-            playerWrapper.appendChild(waves);
-            newMessage.appendChild(playerWrapper);
-
-          } else if (data.text) {
-            const textEl = document.createElement('div');
-            textEl.textContent = data.text;
-            newMessage.appendChild(textEl);
-          }
-          
-          if (myUsername === "MilkyVIP" || data.username === myUsername) {
-            const delBtn = document.createElement('button');
-            delBtn.className = 'delete-msg-btn';
-            delBtn.innerHTML = '<i class="fas fa-trash"></i>';
-            delBtn.onclick = async (e) => {
-              e.stopPropagation();
-              if (confirm("Удалить?")) {
-                await deleteDoc(doc(db, "messages", docSnap.id));
-              }
-            };
-            newMessage.appendChild(delBtn);
-          }
-          
-          chatBox.appendChild(newMessage);
+          allLoadedMessages.push({ id: docSnap.id, ...docSnap.data() });
         });
-        chatBox.scrollTop = chatBox.scrollHeight;
+        renderMessages(allLoadedMessages);
       });
     }
+
+    function renderMessages(msgs) {
+      chatBox.innerHTML = ''; 
+      msgs.forEach((data) => {
+        const msgRoom = data.room || "global_chat";
+        if (msgRoom !== currentChatRoom) return;
+
+        const newMessage = document.createElement('div');
+        if (data.isVip) {
+          newMessage.className = 'message vip-msg';
+        } else {
+          newMessage.className = data.username === myUsername ? 'message my' : 'message other';
+        }
+        
+        newMessage.onclick = () => {
+          replyingToMessage = { user: usersProfiles[data.username]?.displayName || data.username, text: data.text || 'Медиа' };
+          replyToText.textContent = `${replyingToMessage.user}: ${replyingToMessage.text}`;
+          activeReplyBanner.style.display = 'flex';
+          messageInput.focus();
+        };
+
+        const msgHeader = document.createElement('div');
+        msgHeader.className = 'msg-header';
+
+        const avatarImg = document.createElement('img');
+        avatarImg.className = 'msg-avatar';
+        avatarImg.src = usersProfiles[data.username]?.avatar || 'https://via.placeholder.com/150';
+        msgHeader.appendChild(avatarImg);
+
+        const authorEl = document.createElement('span');
+        authorEl.className = 'author';
+        const dispName = usersProfiles[data.username]?.displayName || data.username || 'Аноним';
+        const isVerified = data.username === 'MilkyVIP' ? '<span class="verified-badge"></span>' : '';
+        authorEl.innerHTML = `${dispName} ${isVerified}`;
+        msgHeader.appendChild(authorEl);
+
+        newMessage.appendChild(msgHeader);
+
+        if (data.replyTo) {
+          const replyBox = document.createElement('div');
+          replyBox.className = 'reply-preview-box';
+          replyBox.textContent = `↩ ${data.replyTo}`;
+          newMessage.appendChild(replyBox);
+        }
+
+        if (data.image) {
+          const imgEl = document.createElement('img');
+          imgEl.src = data.image;
+          imgEl.className = 'chat-img';
+          newMessage.appendChild(imgEl);
+        } else if (data.audio) {
+          const playerWrapper = document.createElement('div');
+          playerWrapper.className = 'custom-voice-player';
+
+          const playBtn = document.createElement('button');
+          playBtn.className = 'play-voice-btn';
+          playBtn.innerHTML = '<i class="fas fa-play"></i>';
+
+          const waves = document.createElement('span');
+          waves.className = 'voice-waves';
+          waves.textContent = ' ▶ ▂▃▅';
+
+          const audioElement = new Audio(data.audio);
+
+          playBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (audioElement.paused) {
+              audioElement.play();
+              playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+              audioElement.pause();
+              playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+          };
+
+          audioElement.onended = () => { playBtn.innerHTML = '<i class="fas fa-play"></i>'; };
+
+          playerWrapper.appendChild(playBtn);
+          playerWrapper.appendChild(waves);
+          newMessage.appendChild(playerWrapper);
+
+        } else if (data.text) {
+          const textEl = document.createElement('div');
+          textEl.textContent = data.text;
+          newMessage.appendChild(textEl);
+        }
+
+        // КНОПКИ ДЕЙСТВИЙ (УДАЛИТЬ, ЗАКРЕПИТЬ, РЕДАКТИРОВАТЬ)
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'msg-actions';
+
+        const pinBtn = document.createElement('button');
+        pinBtn.innerHTML = '<i class="fas fa-thumbtack"></i>';
+        pinBtn.onclick = (e) => {
+          e.stopPropagation();
+          currentPinnedMessage = data.text || 'Медиасообщение';
+          pinnedText.textContent = currentPinnedMessage;
+          pinnedBanner.style.display = 'flex';
+          unpinBtn.style.display = 'block';
+        };
+        actionsDiv.appendChild(pinBtn);
+        
+        if (myUsername === "MilkyVIP" || data.username === myUsername) {
+          const delBtn = document.createElement('button');
+          delBtn.innerHTML = '<i class="fas fa-trash"></i>';
+          delBtn.onclick = async (e) => {
+            e.stopPropagation();
+            if (confirm("Удалить сообщение?")) {
+              await deleteDoc(doc(db, "messages", data.id));
+            }
+          };
+          actionsDiv.appendChild(delBtn);
+        }
+
+        newMessage.appendChild(actionsDiv);
+        chatBox.appendChild(newMessage);
+      });
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    unpinBtn.onclick = () => {
+      pinnedBanner.style.display = 'none';
+      currentPinnedMessage = null;
+    };
 
     async function sendMessage(payload) {
       let finalPayload = { 
