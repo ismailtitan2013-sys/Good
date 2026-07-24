@@ -195,7 +195,7 @@
 <body data-theme="dark">
   <canvas id="bg-canvas"></canvas>
 
-  {/* МОДАЛКА ЗВОНКОВ WEBTRC (STUN/TURN) */}
+  <!-- МОДАЛКА ЗВОНКОВ WEBRTC (STUN/TURN) -->
   <div id="call-screen">
     <div class="call-header-info">
       <span id="call-status-badge" style="font-size: 0.9rem; font-weight: 600; color: #4fae4e;">Инициализация...</span>
@@ -221,7 +221,7 @@
     </div>
   </div>
 
-  {/* VIP МОДАЛКА */}
+  <!-- VIP МОДАЛКА -->
   <div id="vip-modal">
     <div class="vip-modal-box">
       <h3>👑 Miilkii VIP Эксклюзив</h3>
@@ -233,7 +233,7 @@
     </div>
   </div>
 
-  {/* АВТОРИЗАЦИЯ */}
+  <!-- АВТОРИЗАЦИЯ -->
   <div id="auth-screen">
     <div class="auth-box">
       <h2>Good Messenger</h2>
@@ -246,7 +246,7 @@
     </div>
   </div>
 
-  {/* САЙДБАР */}
+  <!-- САЙДБАР -->
   <div id="sidebar">
     <div class="sidebar-header">
       <span>Меню</span>
@@ -273,7 +273,7 @@
     <div class="sidebar-content" id="sidebar-list"></div>
   </div>
 
-  {/* ЧАТ */}
+  <!-- ЧАТ -->
   <div id="main-container">
     <header>
       <div class="header-left">
@@ -335,7 +335,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, getDoc, setDoc, deleteDoc, limit, startAfter, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, getDoc, setDoc, deleteDoc, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDZ5G4pBPLlzTd9QL5ikBM0tgNNwJHtkmE",
@@ -442,7 +442,7 @@
     const sendVipMsgBtn = document.getElementById('send-vip-msg');
     const closeVipModalBtn = document.getElementById('close-vip-modal');
 
-    // WEBTRC ЗВОНКИ (STUN СЕРВЕРА + СИГНАЛИЗАЦИЯ)
+    // WEBTRC ЗВОНКИ
     const callScreen = document.getElementById('call-screen');
     const callStatusBadge = document.getElementById('call-status-badge');
     const callPeerTitle = document.getElementById('call-peer-title');
@@ -466,12 +466,12 @@
     let isMicMuted = false;
     let isCamMuted = false;
     let callListenerUnsubscribe = null;
+    let activeCallPeer = null;
 
     const rtcConfig = {
       iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' },
-        { urls: 'stun:stun2.l.google.com:19302' }
+        { urls: 'stun:stun1.l.google.com:19302' }
       ]
     };
 
@@ -612,10 +612,11 @@
       });
     }
 
-    /* ПОЛНОЦЕННАЯ СИСТЕМА WEBRTC ЗВОНКОВ ЧЕРЕЗ FIRESTORE СИГНАЛИЗАЦИЮ */
+    /* ИСПРАВЛЕННАЯ СИГНАЛИЗАЦИЯ WEBRTC БЕЗ ОШИБОК ИНДЕКСА */
     function getTargetUserFromRoom() {
-      if (!currentChatRoom.startsWith("pm_")) return null;
+      if (typeof currentChatRoom !== "string" || !currentChatRoom.startsWith("pm_")) return null;
       const parts = currentChatRoom.replace("pm_", "").split("_");
+      if (parts.length < 2) return null;
       return parts[0] === myUsername ? parts[1] : parts[0];
     }
 
@@ -625,6 +626,7 @@
         alert("Звонить можно в личных сообщениях (ЛС)!");
         return;
       }
+      activeCallPeer = targetUser;
 
       callTargetAvatar.src = usersProfiles[targetUser]?.avatar || 'https://via.placeholder.com/150';
       callTargetName.textContent = usersProfiles[targetUser]?.displayName || targetUser;
@@ -655,8 +657,8 @@
         };
 
         pc.onicecandidate = async (event) => {
-          if (event.candidate) {
-            await addDoc(collection(db, "calls", targetUser, "candidates"), event.candidate.toJSON());
+          if (event.candidate && activeCallPeer) {
+            await addDoc(collection(db, "calls", activeCallPeer, "candidates"), event.candidate.toJSON());
           }
         };
 
@@ -678,19 +680,23 @@
     }
 
     function initSignalingListener() {
+      if (callListenerUnsubscribe) callListenerUnsubscribe();
+
       callListenerUnsubscribe = onSnapshot(doc(db, "calls", myUsername), async (docSnap) => {
         if (!docSnap.exists()) return;
         const data = docSnap.data();
 
-        if (data.status === "ringing" && data.from !== myUsername) {
+        if (data.status === "ringing" && data.from && data.from !== myUsername) {
+          activeCallPeer = data.from;
+          const callerName = usersProfiles[data.from]?.displayName || data.from;
           callTargetAvatar.src = usersProfiles[data.from]?.avatar || 'https://via.placeholder.com/150';
-          callTargetName.textContent = usersProfiles[data.from]?.displayName || data.from;
-          callPeerTitle.textContent = `Входящий вызов от ${callTargetName.textContent}`;
+          callTargetName.textContent = callerName;
+          callPeerTitle.textContent = `Входящий вызов от ${callerName}`;
           callStatusBadge.textContent = "Входящий вызов...";
           callAvatarContainer.style.display = "flex";
           callScreen.style.display = "flex";
 
-          if (confirm(`Входящий ${data.type === 'video' ? 'видео' : 'аудио'} звонок от ${callTargetName.textContent}. Принять?`)) {
+          if (confirm(`Входящий ${data.type === 'video' ? 'видео' : 'аудио'} звонок от ${callerName}. Принять?`)) {
             await answerCall(data);
           } else {
             await rejectCall(data.from);
@@ -726,7 +732,14 @@
           callStatusBadge.textContent = "Разговор";
         };
 
+        pc.onicecandidate = async (event) => {
+          if (event.candidate && callerUser) {
+            await addDoc(collection(db, "calls", callerUser, "candidates"), event.candidate.toJSON());
+          }
+        };
+
         const callDoc = await getDoc(doc(db, "calls", myUsername));
+        if (!callDoc.exists()) return;
         const callData = callDoc.data();
 
         await pc.setRemoteDescription(new RTCSessionDescription(callData.offer));
@@ -738,10 +751,9 @@
           status: "answered"
         }, { merge: true });
 
-        // Слушаем ICE кандидатов
         onSnapshot(collection(db, "calls", myUsername, "candidates"), (snapshot) => {
           snapshot.docChanges().forEach((change) => {
-            if (change.type === "added") {
+            if (change.type === "added" && pc) {
               pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
             }
           });
@@ -754,7 +766,9 @@
     }
 
     async function rejectCall(callerUser) {
-      await setDoc(doc(db, "calls", callerUser), { status: "rejected" }, { merge: true });
+      if (callerUser) {
+        await setDoc(doc(db, "calls", callerUser), { status: "rejected" }, { merge: true });
+      }
       closeCall();
     }
 
@@ -774,9 +788,9 @@
       remoteVideoWrapper.style.display = "none";
       callMediaGrid.classList.remove("two-users");
       
-      const targetUser = getTargetUserFromRoom();
-      if (targetUser) {
-        await setDoc(doc(db, "calls", targetUser), { status: "ended" }, { merge: true });
+      if (activeCallPeer) {
+        await setDoc(doc(db, "calls", activeCallPeer), { status: "ended" }, { merge: true });
+        activeCallPeer = null;
       }
     }
 
@@ -1101,11 +1115,13 @@
           };
 
           audioElement.ontimeupdate = () => {
-            const pct = (audioElement.currentTime / audioElement.duration) * 100;
-            progressFill.style.width = `${pct}%`;
-            const mins = Math.floor(audioElement.currentTime / 60);
-            const secs = Math.floor(audioElement.currentTime % 60);
-            timeSpan.textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            if (audioElement.duration) {
+              const pct = (audioElement.currentTime / audioElement.duration) * 100;
+              progressFill.style.width = `${pct}%`;
+              const mins = Math.floor(audioElement.currentTime / 60);
+              const secs = Math.floor(audioElement.currentTime % 60);
+              timeSpan.textContent = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            }
           };
 
           audioElement.onended = () => {
@@ -1126,7 +1142,9 @@
             e.stopPropagation();
             const rect = progressBar.getBoundingClientRect();
             const clickPos = (e.clientX - rect.left) / rect.width;
-            audioElement.currentTime = clickPos * audioElement.duration;
+            if (audioElement.duration) {
+              audioElement.currentTime = clickPos * audioElement.duration;
+            }
           };
 
           playerWrapper.appendChild(playBtn);
